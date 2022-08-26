@@ -1,8 +1,7 @@
-require 'multi_json'
+require "multi_json"
 
 module Logglier
   module Client
-
     # Creates a new loggly client, based on a url scheme and options provided
     # @param [Hash,String] opts the options hash or url string
     # @option opts [String] :input_url The Loggly input_url
@@ -11,60 +10,56 @@ module Logglier
     #
     #
     # @raise [Logglier::UnsupportedScheme] if the :input_url isn't recognized
-    # @return [Logglier::Client::HTTP, Logglier::Client::Syslog] returns an instance of the Logglier Client class 
-    def self.new(input_url, opts={})
-      unless input_url
-        raise InputURLRequired.new
-      end
+    # @return [Logglier::Client::HTTP, Logglier::Client::Syslog] returns an instance of the Logglier Client class
+    def self.new(input_url, opts = {})
+      raise InputURLRequired unless input_url
 
-      opts.merge!({ :input_url => input_url })
+      opts.merge!({ input_url: })
 
       begin
         input_uri = URI.parse(opts[:input_url])
       rescue URI::InvalidURIError => e
-        raise InputURLRequired.new("Invalid Input URL: #{input_uri}")
+        raise InputURLRequired, "Invalid Input URL: #{input_uri}"
       end
 
       case input_uri.scheme
-      when 'http', 'https'
+      when "http", "https"
         Logglier::Client::HTTP.new(opts)
-      when 'udp', 'tcp'
+      when "udp", "tcp"
         Logglier::Client::Syslog.new(opts)
       else
-        raise Logglier::UnsupportedScheme.new("#{input_uri.scheme} is unsupported")
+        raise Logglier::UnsupportedScheme, "#{input_uri.scheme} is unsupported"
       end
-
     end
 
     module InstanceMethods
-
-      def masherize_key(prefix,key)
-        [prefix,key.to_s].compact.join('.')
+      def masherize_key(prefix, key)
+        [prefix, key.to_s].compact.join(".")
       end
 
-      def masher(hash, prefix=nil)
+      def masher(hash, prefix = nil)
         hash.map do |v|
           if v[1].is_a?(Hash)
-            masher(v[1],masherize_key(prefix,v[0]))
+            masher(v[1], masherize_key(prefix, v[0]))
           else
-            "#{masherize_key(prefix,v[0])}=" << case v[1]
-            when Symbol
-              v[1].to_s
-            else
-              v[1].inspect
-            end
+            "#{masherize_key(prefix, v[0])}=" << case v[1]
+                                                 when Symbol
+                                                   v[1].to_s
+                                                 else
+                                                   v[1].inspect
+                                                 end
           end
         end.join(", ")
       end
 
       def formatter
         proc do |severity, datetime, progname, msg|
-          processid=Process.pid
+          processid = Process.pid
           if @format == :json && msg.is_a?(Hash)
-            MultiJson.dump(msg.merge({ :severity => severity,
-                                       :datetime => datetime,
-                                       :progname => progname,
-                                       :pid      => processid }))
+            MultiJson.dump(msg.merge({ severity:,
+                                       datetime:,
+                                       progname:,
+                                       pid: processid }))
           else
             message = "#{datetime} "
             message << massage_message(msg, severity, processid)
@@ -78,18 +73,16 @@ module Logglier
         # Append PID and severity to message, unless we're a Syslog
         # client. If we're a Syslog client, that information is already
         # in the Syslog packet.
-        unless self.is_a?(Logglier::Client::Syslog)
-          outgoing_message << "pid=#{processid}, severity=#{severity}, "
-        end
+        outgoing_message << "pid=#{processid}, severity=#{severity}, " unless is_a?(Logglier::Client::Syslog)
 
-        case incoming_message
-        when Hash
-          outgoing_message << masher(incoming_message)
-        when String
-          outgoing_message << incoming_message
-        else
-          outgoing_message << incoming_message.inspect
-        end
+        outgoing_message << case incoming_message
+                            when Hash
+                              masher(incoming_message)
+                            when String
+                              incoming_message
+                            else
+                              incoming_message.inspect
+                            end
         outgoing_message
       end
 
@@ -99,15 +92,12 @@ module Logglier
         begin
           @input_uri = URI.parse(@input_uri)
         rescue URI::InvalidURIError => e
-          raise InputURLRequired.new("Invalid Input URL: #{@input_uri}")
+          raise InputURLRequired, "Invalid Input URL: #{@input_uri}"
         end
       end
-
     end
-
   end
 end
 
-require File.join(File.dirname(__FILE__), 'client', 'http')
-require File.join(File.dirname(__FILE__), 'client', 'syslog')
-
+require File.join(File.dirname(__FILE__), "client", "http")
+require File.join(File.dirname(__FILE__), "client", "syslog")
