@@ -1,14 +1,13 @@
-require File.join(File.dirname(__FILE__), 'logglier', 'client')
+require File.join(File.dirname(__FILE__), "logglier", "client")
 
-require 'logger'
+require "logger"
 
 module Logglier
-
   class InputURLRequired < ArgumentError; end
   class UnsupportedScheme < ArgumentError; end
   class UnknownFacility < ArgumentError; end
 
-  def self.new(url, opts={})
+  def self.new(url, opts = {})
     client = Logglier::Client.new(url, opts)
     logger = Logger.new(client)
 
@@ -20,5 +19,4 @@ module Logglier
 
     logger
   end
-
 end
