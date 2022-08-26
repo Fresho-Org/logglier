@@ -1,6 +1,6 @@
 require "spec_helper"
 
-describe Logglier do
+describe Logglier do  
   before do
     @logger = double("logger")
     allow(Logger).to receive(:new).and_return(@logger)

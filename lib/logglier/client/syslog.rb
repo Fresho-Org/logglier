@@ -32,6 +32,7 @@ module Logglier
 
         @format = opts[:format]
         @hostname = opts[:hostname] || Socket.gethostname.split(".").first
+        @loggly_customer_token = opts[:loggly_customer_token]
       end
 
       # Required by Logger::LogDevice
@@ -70,15 +71,17 @@ module Logglier
       def formatter
         proc do |severity, datetime, progname, msg|
           processid = Process.pid
-          message = "<#{pri(severity)}>#{datetime.strftime(datetime_format)} #{@hostname} "
+          message = "<#{pri(severity)}>1 #{datetime.rfc3339(3)} #{@hostname} "
 
           # Include process ID in progname/log tag - RFC3164 § 5.3
           message <<
             if progname
-              "#{progname}[#{processid}]: "
+              "#{progname} #{processid} "
             else
-              "#{$0}[#{processid}]: "
+              "#{$0} #{processid} "
             end
+
+          message << "[#{@loggly_customer_token}@41058 tag=\"ruby\"] "
 
           # Support logging JSON to Syslog
           message <<
