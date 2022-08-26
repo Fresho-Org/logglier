@@ -46,26 +46,22 @@ module Logglier
         @syslog.close
       end
 
-      # Specifies the date/time format for this client
-      def datetime_format
-        "%b %e %H:%M:%S"
-      end
-
       # Syslog specific PRI calculation.
       # See RFC3164 4.1.1
       def pri(severity)
-        severity_value = case severity
-                         when "FATAL"
-                           0
-                         when "ERROR"
-                           3
-                         when "WARN"
-                           4
-                         when "INFO"
-                           6
-                         when "DEBUG"
-                           7
-                         end
+        severity_value =
+          case severity
+          when "FATAL"
+            0
+          when "ERROR"
+            3
+          when "WARN"
+            4
+          when "INFO"
+            6
+          when "DEBUG"
+            7
+          end
         (@facility << 3) + severity_value
       end
 

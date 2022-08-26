@@ -14,7 +14,7 @@ module Logglier
     def self.new(input_url, opts = {})
       raise InputURLRequired unless input_url
 
-      opts.merge!({ input_url: })
+      opts.merge!({ input_url: input_url })
 
       begin
         input_uri = URI.parse(opts[:input_url])
@@ -56,9 +56,9 @@ module Logglier
         proc do |severity, datetime, progname, msg|
           processid = Process.pid
           if @format == :json && msg.is_a?(Hash)
-            MultiJson.dump(msg.merge({ severity:,
-                                       datetime:,
-                                       progname:,
+            MultiJson.dump(msg.merge({ severity: severity,
+                                       datetime: datetime,
+                                       progname: progname,
                                        pid: processid }))
           else
             message = "#{datetime} "
@@ -91,7 +91,7 @@ module Logglier
 
         begin
           @input_uri = URI.parse(@input_uri)
-        rescue URI::InvalidURIError => e
+        rescue URI::InvalidURIError
           raise InputURLRequired, "Invalid Input URL: #{@input_uri}"
         end
       end
