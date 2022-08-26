@@ -1,7 +1,7 @@
-require 'uri'
+require "uri"
 
-require File.join(File.dirname(__FILE__), 'http', 'sync')
-require File.join(File.dirname(__FILE__), 'http', 'threaded')
+require File.join(File.dirname(__FILE__), "http", "sync")
+require File.join(File.dirname(__FILE__), "http", "threaded")
 
 module Logglier
   module Client
@@ -10,14 +10,15 @@ module Logglier
 
       attr_reader :input_uri, :deliverer
 
-      def initialize(opts={})
+      def initialize(opts = {})
         setup_input_uri(opts)
         @format = opts[:format] ? opts[:format].to_sym : nil
-        @deliverer = if opts[:threaded]
-          Logglier::Client::HTTP::DeliveryThreadManager.new(@input_uri, opts)
-        else
-          Logglier::Client::HTTP::NetHTTPProxy.new(@input_uri, opts)
-        end
+        @deliverer =
+          if opts[:threaded]
+            Logglier::Client::HTTP::DeliveryThreadManager.new(@input_uri, opts)
+          else
+            Logglier::Client::HTTP::NetHTTPProxy.new(@input_uri, opts)
+          end
       end
 
       def write(message)
@@ -30,4 +31,3 @@ module Logglier
     end
   end
 end
-
