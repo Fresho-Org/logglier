@@ -9,22 +9,22 @@ module LoggerHacks
   end
 end
 
+class MockTCPSocket
+  def initialize(*args); end
+  def setsockopt(*args); end
+  def send(*args); end
+end
+
+class MockNetHTTPProxy
+  def initialize(*args); end
+  def deliver(*args); end
+end
+
 RSpec.configure do |config|
-  config.color_enabled = config.tty = true
+  config.color = true
   config.add_formatter('documentation')
 
   config.before(:each) do
-  end
-
-  class MockTCPSocket
-    def initialize(*args); end
-    def setsockopt(*args); end
-    def send(*args); end
-  end
-
-  class MockNetHTTPProxy
-    def initialize(*args); end
-    def deliver(*args); end
   end
 
   def new_logglier(url,opts={})
