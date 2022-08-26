@@ -18,7 +18,7 @@ module Logglier
 
       begin
         input_uri = URI.parse(opts[:input_url])
-      rescue URI::InvalidURIError => e
+      rescue URI::InvalidURIError
         raise InputURLRequired, "Invalid Input URL: #{input_uri}"
       end
 
