@@ -13,7 +13,7 @@ describe Logglier do
 
   context "HTTPS" do
     context "w/o any options" do
-      subject { new_logglier("https://localhost") }
+      subject { Logglier.new("https://localhost") }
 
       it { should be_an_instance_of Logger }
       its("logdev.dev") { should be_an_instance_of Logglier::Client::HTTP }
